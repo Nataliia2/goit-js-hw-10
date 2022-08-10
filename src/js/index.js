@@ -1,6 +1,7 @@
-import './css/styles.css';
+import '../css/styles.css';
 import debounce from 'lodash.debounce';
 import Notiflix from 'notiflix';
+import apiCountries from './fetchCountries';
 
 
 const DEBOUNCE_DELAY = 300;
@@ -11,42 +12,44 @@ const coutryInfo = document.querySelector('.country-info');
 
 searchContry.addEventListener('input', debounce(onSearchContry, DEBOUNCE_DELAY))
 
-const URL = "https://restcountries.com/v2";
- 
-function fetchCountries(name) {
-
-    return fetch(`${URL}/name/${name}?fields=name,capital,population,flags,languages`)
-.then((response) => response.json())
-.catch((error) => {
-    console.log("error", error);
-})
-}
 
 function onSearchContry(e) {
-    const countrys = e.target.value.trim();
-    if (countrys === '') {
+    const countries = e.target.value.trim();
+    if (countries === '') { 
         removeData();
         return;
     }
-    fetchCountries(countrys)
-    .then(data => insertContent(data))
-    .catch(error => notFound(error));
-};
+    apiCountries(countries)
+        .then(data => insertContent(data))
+        .catch(error => {
+            if (error.code === 404) {
+                notFound();
+            } else {
+                Notiflix.Notify.failure('Unknow error');
+            }
+            removeData();
+    });
+}
 
 
 const insertContent = (countries) => {
-    const result = listCountry(countries);
+    
+    removeData();
     
      if (countries.length === 1) {
-        countryList.innerHTML = result; 
+        
         const resultInfo = countryInfoMarkup(countries);
         coutryInfo.insertAdjacentHTML('beforeend', resultInfo);
+
     } else if (countries.length < 10 && countries.length > 1) {
+        const result = listCountry(countries);
         countryList.innerHTML = result; 
-        coutryInfo.innerHTML = '';
-    } else {
+        
+    } else if (countries.length > 10) {
         Notiflix.Notify.info('Too many matches found. Please enter a more specific name.');
-        removeData();
+        
+    } else {
+        notFound();
     }
 }
 
@@ -59,9 +62,10 @@ const countryMarkup = (({ name, flags }) => {
 });
 
 const countryInfoMarkup = (country) => {
-    const { capital, population, languages } = country[0];
+    const { flags, name, capital, population, languages } = country[0];
         const language = languages.map(list => list.name).join(' ');
-        const info = `<p class="country-info__text"><span>Capital:</span>${capital}</p>
+        const info = `<h2 class="country-name"><img class="country-flag"src='${flags.svg}' alt='Country flag' width='40'>${name}</h2>
+        <p class="country-info__text"><span>Capital:</span>${capital}</p>
         <p class="country-info__text"><span>Population:</span>${population}</p>
         <p class="country-info__text"><span>Languages:</span>${language}</p>`;
         return info;
