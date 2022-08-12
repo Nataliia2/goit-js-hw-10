@@ -15,8 +15,8 @@ searchContry.addEventListener('input', debounce(onSearchContry, DEBOUNCE_DELAY))
 
 function onSearchContry(e) {
     const countries = e.target.value.trim();
-    if (countries === '') { 
-        removeData();
+    removeData();
+    if (countries === '') {   
         return;
     }
     apiCountries(countries)
@@ -27,7 +27,7 @@ function onSearchContry(e) {
             } else {
                 Notiflix.Notify.failure('Unknow error');
             }
-            removeData();
+            
     });
 }
 
@@ -49,7 +49,7 @@ const insertContent = (countries) => {
         Notiflix.Notify.info('Too many matches found. Please enter a more specific name.');
         
     } else {
-        notFound();
+        Notiflix.Notify.failure('Unknow error');
     }
 }
 
@@ -72,8 +72,8 @@ const countryInfoMarkup = (country) => {
 };
 
 const notFound = () => {
-    Notiflix.Notify.failure('Oops, there is no country with that name')
-    removeData();
+    Notiflix.Notify.failure('Oops, there is no country with that name');
+    
 };
 
 
