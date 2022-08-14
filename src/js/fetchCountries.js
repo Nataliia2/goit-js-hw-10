@@ -5,7 +5,10 @@ const URL = 'https://restcountries.com/v2';
         return fetch(`${URL}/name/${name}?fields=name,capital,population,flags,languages`)
         .then((response) => {
             if (!response.ok) {
-              throw new Error(response.status);
+              const error = new Error();
+              error.code = response.status;
+                throw error;
+              
             }
             return response.json();
           });

@@ -22,7 +22,7 @@ function onSearchContry(e) {
     apiCountries(countries)
         .then(data => insertContent(data))
         .catch(error => {
-            if (error.message === 404) {
+            if (error.code === 404) {
                 notFound();
             } else {
                 Notiflix.Notify.failure('Unknow error');
